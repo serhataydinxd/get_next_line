@@ -6,50 +6,83 @@
 /*   By: seraydin <seraydin@student.42istanbul.com  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 12:24:36 by seraydin          #+#    #+#             */
-/*   Updated: 2026/08/26 18:12:28 by seraydin         ###   ########.fr       */
+/*   Updated: 2026/08/29 14:28:55 by seraydin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_strchr(const char *s, int c)
+int	ft_strchr(const char *s, int c)
 {
 	int				a;
 	unsigned char	ch;
 
+	if (!s)
+		return (-1);
 	a = 0;
 	ch = (unsigned char)c;
-	while (s[a] && ((unsigned char)s[a] != ch))
+	while (s[a])
+	{
+		if ((unsigned char)s[a] == ch)
+			return (a);
 		a++;
-	if (s[a] || (!s[a] && ch == 0))
-		return ((char *)&s[a]);
-	return (0);
+	}
+	return (-1);
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+char	*ft_strndup(char const *src, int n)
 {
-	char			*str;
-	unsigned int	a;
-	size_t			s_len;
+	char	*str;
+	int		a;
 
-	s_len = 0;
-	if (!s)
-		return (0);
-	while (s[s_len])
-		s_len++;
-	if (start >= s_len)
-		return (0);
-	if (len > s_len - start)
-		len = s_len - start;
-	a = 0;
-	str = malloc((len + 1) * sizeof(char));
+	str = malloc((n + 1) * sizeof(char));
 	if (!str)
 		return (0);
-	while (s[start + a] && a < len)
+	a = 0;
+	while (src[a] && a < n)
 	{
-		str[a] = s[start + a];
+		str[a] = src[a];
 		a++;
 	}
 	str[a] = '\0';
+	return (str);
+}
+
+size_t	ft_strlen(char *s)
+{
+	size_t	a;
+
+	a = 0;
+	while (s[a])
+		a++;
+	return (a);
+}
+
+char	*ft_strjoin(char *s1, char *s2)
+{
+	char	*str;
+	size_t	len;
+	size_t	a;
+	size_t	b;
+
+	if (!s1 || !s2)
+		return (0);
+	len = (ft_strlen(s1) + ft_strlen(s2));
+	str = malloc((len + 1) * sizeof(char));
+	if (!str)
+		return (0);
+	a = 0;
+	str[len] = '\0';
+	while (s1[a])
+	{
+		str[a] = s1[a];
+		a++;
+	}
+	b = 0;
+	while (s2[b])
+	{
+		str[a + b] = s2[b];
+		b++;
+	}
 	return (str);
 }

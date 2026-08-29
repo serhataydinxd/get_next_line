@@ -6,104 +6,105 @@
 /*   By: seraydin <seraydin@student.42istanbul.com  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/16 20:58:01 by seraydin          #+#    #+#             */
-/*   Updated: 2026/08/26 21:47:23 by seraydin         ###   ########.fr       */
+/*   Updated: 2026/08/29 14:50:23 by seraydin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlcat(char *dst, const char *src, size_t size)
+static char	*handle(char **left)
 {
-	size_t	a;
-	size_t	dst_len;
-	size_t	src_len;
+	char	*temp;
 
-	src_len = 0;
-	while (src[src_len])
-		src_len++;
-	if (size < 1)
-		return (src_len + size);
-	a = 0;
-	dst_len = 0;
-	while (dst_len < size && dst[dst_len])
-		dst_len++;
-	if (dst_len == size)
-		return (src_len + size);
-	while (src[a] && (dst_len + a) < size - 1)
+	if (!(*left)[0])
 	{
-		dst[dst_len + a] = src[a];
-		a++;
+		free(*left);
+		*left = 0;
+		return (0);
 	}
-	dst[dst_len + a] = '\0';
-	return (dst_len + src_len);
+	temp = *left;
+	*left = 0;
+	return (temp);
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
-{
-	char			*str;
-	unsigned int	a;
-	size_t			s_len;
-
-	s_len = 0;
-	if (!s)
-		return (0);
-	while (s[s_len])
-		s_len++;
-	if (start >= s_len)
-		return (0);
-	if (len > s_len - start)
-		len = s_len - start;
-	a = 0;
-	str = malloc((len + 1) * sizeof(char));
-	if (!str)
-		return (0);
-	while (s[start + a] && a < len)
-	{
-		str[a] = s[start + a];
-		a++;
-	}
-	str[a] = '\0';
-	return (str);
-}
-
-static char	*ft_strndup(char const *src, int n)
+static char	*return_line(char **left)
 {
 	char	*str;
-	int		a;
+	int		index;
+	char	*temp;
 
-	str = malloc((n + 1) * sizeof(char));
+	index = ft_strchr(*left, '\n');
+	if (index == -1)
+		return (handle(left));
+	str = ft_strndup(*left, (index + 1));
 	if (!str)
-		return (0);
-	a = 0;
-	while (src[a] && a < n)
 	{
-		str[a] = src[a];
-		a++;
+		free(*left);
+		*left = 0;
+		return (0);
 	}
-	str[a] = '\0';
+	temp = ft_strndup(*left + index + 1, (int)(ft_strlen(*left) - index - 1));
+	if (!temp)
+	{
+		free(str);
+		free(*left);
+		*left = 0;
+		return (0);
+	}
+	free(*left);
+	*left = temp;
 	return (str);
+}
+
+static char	*read_line(int fd, char *left, char *buff)
+{
+	ssize_t	a_read;
+	char	*temp;
+
+	while (ft_strchr(left, '\n') == -1)
+	{
+		a_read = read(fd, buff, BUFFER_SIZE);
+		if (a_read == -1)
+		{
+			free(left);
+			return (0);
+		}
+		if (a_read == 0)
+			break ;
+		buff[a_read] = '\0';
+		temp = ft_strjoin(left, buff);
+		free(left);
+		if (!temp)
+			return (0);
+		left = temp;
+	}
+	return (left);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*buff;
-	char		*str;
-	ssize_t		a_read;
-	size_t		a;
+	char		*buff;
+	static char	*left;
+	char		*ret;
 
-	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!str)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
-	while (!ft_strchr(buff, '\n'))
+	if (!left)
 	{
-		a_read = read(fd, buff, BUFFER_SIZE);
-		if (a_read == -1)
-			break ;
-		buff[a_read] = '\0';
+		left = ft_strndup("", 0);
+		if (!left)
+			return (0);
 	}
-	if (!ft_strchr(buff, '\n'))
-		return (buff);
-	str = ft_strndup(buff);
-	buff = ft_strchr(buff, '\n');
-	return (str);
+	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!buff)
+	{
+		free(left);
+		return (0);
+	}
+	left = read_line(fd, left, buff);
+	free(buff);
+	if (!left)
+		return (0);
+	ret = return_line(&left);
+	return (ret);
 }
