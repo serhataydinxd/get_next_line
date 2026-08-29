@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seraydin <seraydin@student.42istanbul.com  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/16 20:58:01 by seraydin          #+#    #+#             */
-/*   Updated: 2026/08/29 15:58:24 by seraydin         ###   ########.fr       */
+/*   Updated: 2026/08/29 16:02:45 by seraydin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*handle(char **left)
 {
@@ -84,28 +84,28 @@ static char	*read_line(int fd, char *left, char *buff)
 char	*get_next_line(int fd)
 {
 	char		*buff;
-	static char	*left;
+	static char	*left[1024];
 	char		*ret;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd >= 1024)
 		return (0);
-	if (!left)
+	if (!left[fd])
 	{
-		left = ft_strndup("", 0);
-		if (!left)
+		left[fd] = ft_strndup("", 0);
+		if (!left[fd])
 			return (0);
 	}
 	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buff)
 	{
-		free(left);
-		left = 0;
+		free(left[fd]);
+		left[fd] = 0;
 		return (0);
 	}
-	left = read_line(fd, left, buff);
+	left[fd] = read_line(fd, left[fd], buff);
 	free(buff);
-	if (!left)
+	if (!left[fd])
 		return (0);
-	ret = return_line(&left);
+	ret = return_line(&left[fd]);
 	return (ret);
 }
