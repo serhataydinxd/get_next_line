@@ -13,15 +13,13 @@ The bonus implementation supports interleaved reading from multiple file descrip
 Compile the mandatory files with a test program containing a `main` function:
 
 ```sh
-cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 \
-    get_next_line.c get_next_line_utils.c test.c
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c test.c
 ```
 
 For the bonus implementation:
 
 ```sh
-cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 \
-    get_next_line_bonus.c get_next_line_utils_bonus.c test.c
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line_bonus.c get_next_line_utils_bonus.c test.c
 ```
 
 `BUFFER_SIZE` may be changed or omitted; the header provides a default value. The caller owns every returned line and must free it. Repeated calls return successive lines until `NULL` indicates EOF or an error.
